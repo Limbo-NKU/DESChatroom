@@ -11,15 +11,18 @@ DES加解密类
         输入：64比特密文，64比特密钥
         输出：64比特数据
  */
-namespace myChatRoom{
-    public class DESCrypt{
-        public string Encrypt(string message,byte[] key){
+namespace myChatRoom.DESOperation
+{
+    public class DESCrypt
+    {
+        public string Encrypt(string message, byte[] key)
+        {
             // if(message.Length!=8||key.Length!=8){
             //     return null;
             // }
-            byte[] byteMessage=System.Text.Encoding.ASCII.GetBytes(message);
+            byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(message);
             // byte[] byteKey=System.Text.Encoding.ASCII.GetBytes(key);
-            return Encrypt(byteMessage,key);
+            return Encrypt(byteMessage, key);
             // DESCryptoServiceProvider desService=new DESCryptoServiceProvider();
             // desService.Key=byteKey;
             // desService.IV=byteKey;
@@ -32,32 +35,34 @@ namespace myChatRoom{
             // return Convert.ToBase64String(ms.ToArray());
 
         }
-        public string Encrypt(byte[] message,byte[] key){
-            DESCryptoServiceProvider desService=new DESCryptoServiceProvider();
-            desService.Key=key;
-            desService.IV=key;
-            MemoryStream ms=new MemoryStream();
-            CryptoStream cs=new CryptoStream(ms,desService.CreateEncryptor(),CryptoStreamMode.Write);
-            cs.Write(message,0,message.Length);
+        public string Encrypt(byte[] message, byte[] key)
+        {
+            DESCryptoServiceProvider desService = new DESCryptoServiceProvider();
+            desService.Key = key;
+            desService.IV = key;
+            MemoryStream ms = new MemoryStream();
+            CryptoStream cs = new CryptoStream(ms, desService.CreateEncryptor(), CryptoStreamMode.Write);
+            cs.Write(message, 0, message.Length);
             cs.FlushFinalBlock();
             // char[] result=new char[Convert.];
             // Convert.ToBase64CharArray(ms.ToArray(),0,ms.ToArray().Length,result,0);
             return Convert.ToBase64String(ms.ToArray());
 
         }
-        public string Decrypt(string cipher,byte[] key){
+        public string Decrypt(string cipher, byte[] key)
+        {
             // if(cipher.Length!=8||key.Length()!=8){
             //     return null;
             // }
-            
-            byte[] byteCipher=Convert.FromBase64String(cipher);
+
+            byte[] byteCipher = Convert.FromBase64String(cipher);
             // byte[] byteKey=System.Text.Encoding.ASCII.GetBytes(key);
-            DESCryptoServiceProvider desService=new DESCryptoServiceProvider();
-            desService.Key=key;
-            desService.IV=key;
-            MemoryStream ms=new MemoryStream();
-            CryptoStream cs=new CryptoStream(ms,desService.CreateDecryptor(),CryptoStreamMode.Write);
-            cs.Write(byteCipher,0,byteCipher.Length);
+            DESCryptoServiceProvider desService = new DESCryptoServiceProvider();
+            desService.Key = key;
+            desService.IV = key;
+            MemoryStream ms = new MemoryStream();
+            CryptoStream cs = new CryptoStream(ms, desService.CreateDecryptor(), CryptoStreamMode.Write);
+            cs.Write(byteCipher, 0, byteCipher.Length);
             cs.FlushFinalBlock();
             return System.Text.Encoding.ASCII.GetString(ms.ToArray());
         }
