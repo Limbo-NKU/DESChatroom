@@ -1,19 +1,18 @@
 using System;
 using System.Net.Sockets;
-using System.Threading;
-using myChatRoom.DESOperation;
 
 namespace myChatRoom
 {
     public class chatClient
     {
         //属性
-        public enum clientStatus { UN_CONNECTED, CONNECTED, ERROR, UN_INITIALIZED };
+        public enum clientStatus { UN_CONNECTED, CONNECTED,ENCRYPTED, ERROR, UN_INITIALIZED };
         const int MAX_BUF_SIZE = 1024;
         clientStatus status = clientStatus.UN_INITIALIZED;
         TcpClient client;
         NetworkStream stream;
         byte[] key;
+        string userName = "";
         //方法
         chatClient()
         {
@@ -67,6 +66,7 @@ namespace myChatRoom
                         System.Console.WriteLine(recv);
                         key = Convert.FromBase64String(recv.Substring(4, 12));
                         // System.Console.WriteLine("Key: {0}",Convert.ToBase64String(key));
+                        status = clientStatus.ENCRYPTED;
                         break;
                     }
                     else
@@ -77,39 +77,50 @@ namespace myChatRoom
             }
             //接收消息循环
             //在服务器端关闭时会报错退出
-            while (true)
+            try
             {
-                string message = string.Empty;
-                // byte[] buf=new byte[MAX_BUF_SIZE];
-                if (status != clientStatus.CONNECTED)
-                {
-                    return;
-                }
+
                 while (true)
                 {
-                    int count = await stream.ReadAsync(buf, 0, MAX_BUF_SIZE);
-                    message += System.Text.Encoding.ASCII.GetString(buf, 0, count);
-                    if (count < MAX_BUF_SIZE)
+                    string message = string.Empty;
+                    // byte[] buf=new byte[MAX_BUF_SIZE];
+                    if (status != clientStatus.ENCRYPTED)
                     {
-                        break;
+                        return;
                     }
+                    while (true)
+                    {
+                        int count = await stream.ReadAsync(buf, 0, MAX_BUF_SIZE);
+                        message += System.Text.Encoding.ASCII.GetString(buf, 0, count);
+                        if (count < MAX_BUF_SIZE)
+                        {
+                            break;
+                        }
+                    }
+                    // System.Console.WriteLine("Phys Recv: {0}",message);
+                    for (int i = 0; i < message.Length; i += 24)
+                    {
+                        string part = message.Substring(i, message.Length - i >= 24 ? 24 : message.Length - i);
+                        DESCrypt crypt = new DESCrypt();
+                        part = crypt.Decrypt(part, key);
+                        System.Console.Write(part);
+                    }
+                    System.Console.WriteLine();
+                    message.Remove(0);
                 }
-                // System.Console.WriteLine("Phys Recv: {0}",message);
-                for (int i = 0; i < message.Length; i += 24)
-                {
-                    string part = message.Substring(i, message.Length - i >= 24 ? 24 : message.Length - i);
-                    DESCrypt crypt = new DESCrypt();
-                    part = crypt.Decrypt(part, key);
-                    System.Console.Write(part);
-                }
-                System.Console.WriteLine();
-                message.Remove(0);
+            }
+            catch(Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                stream.Close();
+                client.Close();
+                Environment.Exit(-1);
             }
         }
         async void sendMessage(string message)
         {
             byte[] buf;
-            if (status != clientStatus.CONNECTED)
+            if (status!=clientStatus.ENCRYPTED)
             {
                 return;
             }

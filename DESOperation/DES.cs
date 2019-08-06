@@ -11,7 +11,7 @@ DES加解密类
         输入：64比特密文，64比特密钥
         输出：64比特数据
  */
-namespace myChatRoom.DESOperation
+namespace myChatRoom
 {
     public class DESCrypt
     {

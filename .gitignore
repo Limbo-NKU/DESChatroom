@@ -1,0 +1,13 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs/DESChatroom/DesignTimeBuild
+/.vs/DESChatroom/v16/Server/sqlite3
+/.vs/DESChatroom/v16/.suo
+*.suo
+/.vs
+/.vscode
+/client/obj
+/DESOperation/obj
+/server/obj
