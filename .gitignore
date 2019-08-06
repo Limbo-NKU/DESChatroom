@@ -3,3 +3,11 @@
 ################################################################################
 
 /.vs/DESChatroom/DesignTimeBuild
+/.vs/DESChatroom/v16/Server/sqlite3
+/.vs/DESChatroom/v16/.suo
+*.suo
+/.vs
+/.vscode
+/client/obj
+/DESOperation/obj
+/server/obj

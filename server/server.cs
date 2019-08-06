@@ -2,10 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-
-using myChatRoom;
-using myChatRoom.DESOperation;
+using myChatroom;
 
 namespace myChatRoom
 {
@@ -35,6 +32,8 @@ namespace myChatRoom
         {
             listener.Start();
             status = serverStatus.LISTENING;
+            System.Console.WriteLine("Loading server commands...");
+            ServerCommands.LoadCmdDict();
             System.Console.WriteLine("Server started at {0}", port);
             while (true)
             {
@@ -136,13 +135,21 @@ namespace myChatRoom
                 }
                 System.Console.WriteLine("New message from:{0}", info.UserName);
                 System.Console.WriteLine("\tContent:{0}", message);
-                string messageToClient = string.Format("{0}:{1}", info.UserName, message);
-                foreach (var i in clientList)
+                string reply=String.Empty;
+                if (!ServerCommands.CheckServerCommands(info, message,out reply))
                 {
-                    if (i != info && i.Client.Connected)
+                    string messageToClient = string.Format("{0}:{1}", info.UserName, message);
+                    foreach (var i in clientList)
                     {
-                        this.sendMessageToClient(messageToClient, i);
+                        if (i != info && i.Client.Connected)
+                        {
+                            this.sendMessageToClient(messageToClient, i);
+                        }
                     }
+                }
+                else
+                {
+                    this.sendMessageToClient(reply, info);
                 }
             }
         }
@@ -180,7 +187,12 @@ namespace myChatRoom
             server.startListen();
             while (true)
             {
-                System.Console.ReadLine();
+                string message=System.Console.ReadLine();
+                string messageToClient = string.Format("Server:{0}",  message);
+                foreach (var i in server.clientList)
+                {
+                        server.sendMessageToClient(messageToClient, i);
+                }
             }
         }
     }
